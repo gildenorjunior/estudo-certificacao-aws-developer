@@ -218,3 +218,202 @@ Atráves de query strings o ALB também consegue fazer redirecionamentos.
 - Da mesma forma a porta, X-Forwarded-Port e protocolo X-Forwarded-Proto
 
 ![Como a aplicação vê os ips do client](./imagens/ips-alb.png)
+
+---
+### Network Load Balancer (v2)
+
+É um balanceador de carga na camada de rede, (layer 4). Permite que:
+
+- Trafego TCP e UDP para suas instancias
+-  É muito eficiente e pode lidar com milhões de requisições por segundo
+-  A latência é reduzida em comparação com ALB ~100 ms (vs 400 ms para ALB)
+-  NLB tem apenas um IP estático por AZ, e você pode atribuir um IP elástico para cada AZ. (Isso é bom quando você precisa expor sua aplicação com um conjunto de IPs estáticos e estes podem ser IPs elásticos).
+-  NLB é usado para quando precisamos de performance extrema, TCP ou UDP.
+- **Sua utilização não está incluida no modo free tier da AWS**
+
+<br>
+Como funciona o Network Load Balancer:
+
+![Como funciona o Network Load Balancer](./imagens/network-load-balancer.png)
+
+#### Network Load Balancer - Target Groups
+- Instâncias EC2
+
+![NLB com instâncias EC2](./imagens/nlb-ec2.png)
+
+- Endereço IP. Devem ser IPs privados
+
+![NLB com IPs privados](./imagens/nlb-ips-privados.png)
+
+- Application Load Balancer
+
+![NLB ALB](./imagens/nlb-alb.png)
+
+*Ponto importante para o exame*, Health Checks suportam os protocolos TCP, HTTP e HTTPS.
+
+---
+### Gateway Load Balancer
+
+É usado para implantar, dimensionar e gerenciar uma frota de dispositivos neutros de rede de terceiros na AWS.
+
+**Exemplo de uso:** Você usuaria um GLB se quisesse que todo o tráfego de sua rede passasse por um firewall que você possui ou por um sistema de detecção e prevenção de instrusão para IDPs ou um sistema de inspeção profunda de pacotes ou se deseja modificar algumas cargas úteis.
+
+![Como funciona o gateway load balancer](./imagens/gateway-load-balancer.png)
+
+- GLB opera na camada de pacotes, layer 3 (Network)
+
+*Para o exame o GLB usa o GENEVE protocolo na porta 6081*
+
+#### Gateway Load Balancer - Target Groups
+
+- Instâncias EC2
+
+![GLB instâncias EC2](./imagens/glb-ec2.png)
+
+- Endereços de IP. Devem ser IPs privados
+
+![GLB instâncias IPS](./imagens/glb-ips.png)
+
+<br>
+
+## Cross-Zone Load Balancing
+
+Balanceamento cruzado, significa que entre diferentes zonas de disponibilidade o balanceador vai distribuir a carga igualmente entre cada instância nas diferentes AZs. Isso pode ser um comportamente que você queira ou não.
+
+![Como funciona o Cross-Zone ALB](./imagens/cross-zone-alb.png)
+
+<br>
+
+Agora sem essa função de cross zone: 
+![Sem cross zone ALB](./imagens/sem-cross-zone-alb.png)
+
+As cargas são distribuidas apenas entre a zona que a carga chega.
+
+
+#### Application Load Balancer
+- Vem habilitado por padrão o cross-zone, mas pode ser desabilitado no nível do Target Group
+- Não há cobrança para mudança de dados entre os AZs
+
+#### Network Load Balancer & Gateway Load Balancer
+- O cross-zone vem desabilitado por padrão
+- Você paga pelas mudanças dos dados entre as zonas de disponibilidade, se habilitar o cross-zone
+
+## Elastic Load Balancer SSL certificates
+
+Um certificado SSL permite o tráfego entre seus clientes e seu balanceador de carga seja criptografado durante trânsito.
+Significa que os dados enquanto estão na rede sejam criptografados e só sejam descriptografados quando estiverem com seu remetente ou receptor.
+
+- **SSL** refere-se a Secure Sockets Layer, usado para criptografar conexões.
+- **TLS** refere-se a Transport Layer Security, que é um nova versão do SSL
+- Atualmente TSL é usado com mais frequência (mas as pessoas se referem a ele como SSL).
+- Os certificados tem data de expiração e devem ser renovados.
+
+<br>
+
+Como funciona o certificado SSL na ALB:
+![Como funciona o certificado SSL na ALB](./imagens/ssl-certificado-alb.png)
+
+- Você pode gerenciar certificados usando o ACM (AWS Certificate Manager)
+- Você pode fazer o upload do seu próprio certificado alternativamente
+- O load balancer usa um X.509 certificado (SSL/TLS server certificate)
+
+#### SNI - Server Name Indication
+
+- SNI resolve um problema que é o carregamente de multiplos certificados SSL dentro de um servidor Web (para servir multiplos websites)
+- É um "novo" protocolo, e requer que o cliente indique o hostname do servidor alvo no handshake inicial
+- O servidor vai então procurar o certificado correto, ou retornar o padrão.
+
+**SNI só funciona para ALB, NLB (nova geração) e CLoudFront**
+
+<br>
+
+Como funciona o SNI:
+![Como funciona o SNI](./imagens/sni.png)
+
+## Elastic Load Balancer - Deregistration Delay
+
+É um tempo para completar as requisições que estão em andamento, enquanto a instância está sendo desregistrada ou está unhealthy
+
+
+Como funciona:
+![Como funciona o Deregistration Delay](./imagens/deregistration-delay.png)
+
+## Auto Scaling Groups (ASG)
+
+**O que é?**
+<br>
+Basicamente é o esquema de redimensionar horizontalmente e automaticamente a quantidade de instâncias para aumentar ou diminuir a carga.
+
+- Podemos adicionar instâncias
+- Podemos diminuir instâncias
+- Podemos assegurar uma quantidade minima e máxima de instâncias que ficarão rodando
+- Ele consegue re-criar instâncias que foram terminadas, por exemplo se uma intâncias estava unhealthy
+- ASG é grátis, só pagará pelos recursos usados abaixo dele, como por exemplo, instâncias EC2.
+
+**Como funciona o ASG:**
+![Como funciona o ASG](./imagens/auto-scaling-group.png)
+
+<br>
+
+**Como funciona o ASG com ELB**
+![Como funcioan o ASG com ELB](./imagens/asg-e-elb.png)
+
+### Auto Scaling Group Attributes
+
+Para o auto scaling group a gente precisa especificar alguns atributos que vão servir de base para quando novas instâncias forem lançadas.
+
+Alguns desses atributos são:
+
+- AMI + Tipo da instância
+- EC2 User Data
+- EBS Volumes
+- Security Groups
+- SSH Key Pair
+- IAM Roles para as instâncias EC2
+- Informações de Network + Subnets
+- Informações de Load Balancer
+
+Além disso o Auto Scaling Group também precisa de um tamanho minimo, um tamanho máximo, uma capacidade inicial e também politicas de dimensionamento.
+
+### Auto Scaling - CloudWatch Alarms & Scaling
+
+Podemos integrar o auto scaling group junto ao cloudwatch para que sempre que tiver algum alarme em algum métrica definida por nós o auto scaling atue tanto aumentando o número de instâncias quanto diminuindo o número de instâncias.
+
+![Auto scaling junto ao CloudWatch](./imagens/asg-e-cloudwatch.png)
+
+### Auto Scaling Groups - Dynamic Scaling Policies
+
+**- Target Tracking Scaling**
+  - Mais simples e fácil de configurar
+  - Exemplo: Eu quero que a média de CPU no meu ASG fique por volta de 40%
+
+**- Simple / Step Scaling**
+  - Quando o cloudwatch é acionado (exemplo: CPU > 70%) então adiciona 2 instâncias
+
+**- Scheduled Actions**
+  - Antecipar o escalonamento baseado em padrões conhecidos de uso
+  - Exemplo: Aumente a capacidade minima para 10 as 5 horas as Sextas feiras
+
+### Auto Scaling Groups - Predictive Scaling
+
+- Basicamente uma analise preditiva de escalonamento, a carga será analisada de acordo com o histórico passado
+
+### Boas métricas para escalas
+
+- Utilização de CPU
+- RequestCountPerTarget
+- Média de Network In / Out
+- Qualquer métrica que você colocou no cloudwatch
+
+### Auto Scaling Groups - Scaling Cooldowns
+
+- Depois que uma atividade de escalonamento acontece, você fica em um periodo de cooldown padrão de 300 segundos.
+- Durante esse periodo o ASG não vai lançar ou terminar instâncias para permitir que as métricas se estabilizem.
+
+### Auto Scaling - Instance Refresh
+
+O objetivo é que você queria atualizar um grupo inteiro graças a um novo template que você lançou e então re-criar todas instâncias EC2 novamente.
+
+Basicamente definimos uma porcentagem minima de unhealthy para as instâncias e conforme elas vão sendo encerradas, novas instâncias vão se criando com o novo modelo que pedimos.
+
+![Como funciona o instance refresh](./imagens/instance-refresh.png)
