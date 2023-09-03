@@ -417,3 +417,116 @@ O objetivo é que você queria atualizar um grupo inteiro graças a um novo temp
 Basicamente definimos uma porcentagem minima de unhealthy para as instâncias e conforme elas vão sendo encerradas, novas instâncias vão se criando com o novo modelo que pedimos.
 
 ![Como funciona o instance refresh](./imagens/instance-refresh.png)
+
+## Amazon RDS Overview
+
+RDS significa Relation Database Service. É um serviço gerenciado de banco de dados para bancos de dados que usam SQL como uma linguagem de consulta.
+<br>
+Permite que você crie bancos de dados na nuvem que serão gerenciados pela AWS.
+
+Os motores gerenciados pela AWS são:
+- Postgres
+- MySQL
+- MariaDB
+- Oracle
+- Microsoft SQL Server
+- Aurora (da própria AWS)
+
+#### Vantagens de usar RDS vs Deployar seu próprio DB em um EC2
+
+Pelo RDS ser um serviço gerenciado ele provê:
+
+- Provisionamento automatico de OS
+- Backup e Restore de um timestamp especifico (Point in Time Restore)
+- Monitoração de dashboards
+- Leitura de replicas para melhorar a performance de leitura
+- Configuração de Multi AZ para Disaster Recovery
+- Manutenção de atualizações de Windows
+- Escalabilidade tanto vertical quanto horizontal
+- Storage pelos EBS (gp2 ou ioL)
+
+### RDS Storage Auto Scaling
+
+É uma feature do RDS que ajuda a aumentar seu armazenamento do SB dinamicamente. Quando o RDS detecta que você está rodando sem espaço livre de armazenamento, ele escala automáticamente.
+<br><br>
+Isso evita que você escale manualmente os armazenamentos.
+Você tem que configurar o **Maximum Storage Threshold** limite máximo para o armazenamento do DB.
+
+Ele automaticamente modifica o armazenamento se:
+- Espaço livre for menos que 10%
+- Está em capacidade baixa pelos ultimos 5 minutos
+- Se passou 6 horas desde a última modificação
+
+Isso é muito bom para aplicações que tem carga de trabalho imprevisiveis.
+
+Tem suporte para todas as engines de DB do RDS (MariaDB, MySQL, PostgreSQL, SQL Server, Oracle)
+
+**Como funciona o auto scaling do RDS:**
+![Como funciona o auto scaling do RDS](./imagens/storage-auto-scaling-rds.png)
+
+---
+
+### RDS Read Replicas for read scalability
+
+Basicamente, read replicas são mais instâncias que são criadas para ajudar na leitura da aplicação em acesso aos dados. Para que não se crie gargalo na instância do DB em relação a aplicação.
+
+- Podemos ter até 15 replicas
+- Elas podem atuar dentro de AZs, Cross AZs ou Cross Regiões
+- A replicação acontece de forma assincrona
+- As replicas podem ser promovidas para ser o próprio DB
+- Replicas servem apenas para **leitura**
+
+**Como funciona o RDS replicas:**
+
+![Como funciona o RDS replicas](./imagens/rds-replicas.png)
+
+#### Exemplo de caso de uso para RDS Replicas
+
+Você tem uma aplicação produtiva consumindo de uma instância RDS, a carga de trabalho é uma carga normal.
+Você agora quer rodar uma outra aplicação de report de dados para ter alguns analiticos.
+Então você cria uma nova Read Replica para rodar esse novo worload lá. A sua aplicação antiga não vai ser afetada por esse novo trafego.
+
+**Diagrama de exemplo:**
+![Exemplo de caso de uso Read Replicas](./imagens/rds-replicas-use-case.png)
+
+### Read Replicas - Custos
+
+Normalmente a AWS cobra por dados que cruzam de um AZ para outro. Mas com serviços que são gerenciados isso não acontece. Para o RDS Read Replicas que estiverem dentro da mesma região, você não paga. 
+
+Aqui está um diagrama de exemplo de custos, replicas em diferentes AZs, mas na mesma região o custo é grátis. Agora replicas que estão em diferentes regiões, tem um custo.
+
+![Exemplo de custos com rds replicas](./imagens/rds-replcias-custos.png)
+
+### RDS Multi AZ (Disaster Recovery)
+
+- SYNC replicação
+- Um DNS name
+- Aumentamos a disponibilidade
+
+![Exemplo de RDS multi AZ](./imagens/rds-multi-az.png)
+
+### Como passa de um Single-AZ para Multi-AZ RDS
+
+- Aqui não precisamos ter tempo de parada no banco de dados
+- Apenas com um click você modifica
+
+Por trás dos panos o que acontece é o seguinte, é tirado um snapshot do db, e é restaurado no novo db em um novo AZ. A sincronização é estabelecidade entra os dois databases.
+
+![Como funciona por de trás dos panos o single az para multi az](./imagens/rds-from-single-az-to-multi-az.png)
+
+## Amazon Aurora
+
+É um serviço de banco de dados relacional criado pela AWS.
+
+- Não é open source 
+- Postgres e MySQL são suportados como Aurora, significa que seus drivers vão funcionar no Aurora assim como funcioanavam no Postgre ou MySQL.
+- Aurora é otimizado para a nuvem
+- Ele cresce automaticamente conforme o storage precisa
+- Aurora pode ter mais de 15 replicas 
+- Failover no Aurora é instantaneo
+- Ele tem um custo maior que o RDS, mas é mais eficiente.
+
+### Aurora Alta disponibilidade e Read scaling
+
+- Ele faz 6 cópias dos seus dados entre 3 AZs
+- Ele faz um espécie de auto correção caso os dados estejam corrompidos
