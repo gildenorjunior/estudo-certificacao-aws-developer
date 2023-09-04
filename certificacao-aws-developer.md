@@ -530,3 +530,68 @@ Por trás dos panos o que acontece é o seguinte, é tirado um snapshot do db, e
 
 - Ele faz 6 cópias dos seus dados entre 3 AZs
 - Ele faz um espécie de auto correção caso os dados estejam corrompidos
+
+### RDS & Aurora Security
+
+**Para criptografia em repouso:**
+- Você poder ter seus dados criptografados, para isso no DB master e Replicas usa-se AWS KMS. Isso é definido logo no primeiro inicio de launch do banco de dados.
+- Se o DB master não foi criptografado por algum motivo, as replicas também não poderão ser criptografadas.
+- Se você tem um DB que não está criptografado e você quer criptografa-lo, o que você tem que fazer é criar uma snapshot e restaurá-la em outro DB criptografado.
+
+
+**Para criptografia em trânsito**
+
+- Os DB do Aurora já vem por padrão com essa criptografia em trânsito, para isso os clients devem utilizar os certificados root AWS TLS
+
+**Sobre Autenticação**
+
+- Tem o padrão de usuário e senha, mas também podemos usar IAM roles para conectar ao banco de dados
+
+**Segurança**
+
+- Podemos utilizar Security groups para controlar o acesso a rede do nosso banco de dados, por exemplo qual porta habilitamos ou qual IP.
+
+**Não é disponivel utilizar SSH no Aurora ou RDS, exceto se for RDS custom**
+
+**Audit logs podem ser habilitado e mandados para o CloudWatch para ter uma retenção desses logs por mais tempo**
+
+## Amazon RDS Proxy
+
+**TODO: pesquisar sobre**
+
+## Amazon ElasticCache Overview
+
+ElasticCache é para gerenciar Redis ou Memcached
+
+Caches são banco de dados em memória com alto desempenho e baixa latência
+
+Ele ajuda a reduzir as cargas ao banco de dados com altas cargas de leitura, ou seja, consultas comuns a ideia é que elas sejam armazenadas em cache para que todas as vezes tenha essa carga.
+
+Ajuda também em tornar sua aplicação stateless, sendo assim tirando essa parte de estado da sua aplicação e levando para a AWS.
+
+**Usar o ElasticCache envolve fazer grandes alterações de código**
+
+**Exemplo de caso de uso com Elastic Cache:**
+![Como funcioan o Elastic Cache](./imagens/elastic-cache-como-funciona.png)
+
+
+**Aqui um exemplo de uso guardando dados de sessão de usuário:**
+![Como funciona o Elastic Cache](./imagens/elastic-cache-user-data.png)
+
+### ElasticCache Estratégias
+
+- É seguro armazenar dados em cache? Em geral sim, mas pode acontecer do dado estar desatualizado, porntanto podem haver inconsistências. Portanto, não é para todo grupo de dados.
+- Cache é efetivo: Depende, se seus dados tem poucas mudanças, poucas chaves sim é efetivo, por outro lado, se seus dados mudam com frequência e precisam de grande espaço não é efetivo.
+- Estruturas como chave e valor e agregação são boas para o armazenamento em cache
+
+### Lazy Loading / Cache-Aside / Lazy Population
+
+![Como funciona o padrão de lazy loading](./imagens/elastic-cache-lazy-loading.png)
+
+### Write Through
+
+![Como funciona o Write Through](./imagens/write-through.png)
+
+### Cache Evictions e Time-to-live (TTL)
+
+Cache não é ilimitado. Então você pode explicitamente deletar um item
