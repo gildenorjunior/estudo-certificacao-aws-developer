@@ -595,3 +595,8 @@ Ajuda também em tornar sua aplicação stateless, sendo assim tirando essa part
 ### Cache Evictions e Time-to-live (TTL)
 
 Cache não é ilimitado. Então você pode explicitamente deletar um item
+
+
+## Conteúdos adicionais de apoio para fixação 
+
+[Mapa mental dos conteúdos da certificação](https://www.mindmeister.com/pt/2688053989/aws-developer).
