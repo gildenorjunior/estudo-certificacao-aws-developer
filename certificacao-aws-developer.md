@@ -596,7 +596,100 @@ Ajuda também em tornar sua aplicação stateless, sendo assim tirando essa part
 
 Cache não é ilimitado. Então você pode explicitamente deletar um item
 
+## DNS
 
+DNS é basicamente uma tradução amigavel para os humanos do endereço de IP da máquina.
+
+www.google.com => 172.217.18.36
+
+O DNS é o backbone da internet.
+
+![URL](./imagens/dns.png)
+
+## Amazon Route 53
+
+É um DNS de alta disponibilidade, escalonavel e totalmente gerenciado e autorizado com meios oficiais.
+
+Route 53 também é um Domain Register.
+E é o único serviço da AWS que provê 100% de disponibilidade.
+
+### Route 53 - Record Types
+
+**A** - É para mapear o nome do host em um IPv4
+</br>
+**AAAA** - É para mapear o nome do host em um IPv6
+</br>
+**CNAME** - É para mapear o nome do host para o nome de um outro host
+<br>
+**NS** - Esse é para servidores de nomes da zona de hospedagem. (Controla como o trafego é roteado para um domínio).
+
+### Route 53 - Hosted Zones
+
+É um container de registros que define como o trafego vai para um dominio e subdominios.
+
+**Public Hosted Zones** - Contém registros que especifica como a rota trafega pela internet (public domain names).
+
+**Private Hosted Zones** - Contém registros que especifica como você roteia o trafego entre uma ou mais VPCs (private domain names).
+
+**Usar o Route 53 não é grátis, você paga por mês por hosted zone.**
+
+![Funcionamento da Public Hosted Zone](./imagens/public-hosted-zone.png)
+
+![Funcionamento da Private Hosted Zone](./imagens/private-hosted-zone.png)
+
+### Route 53 - Records TTL (Time To Live)
+
+É uma especie de cache para que não se precise ficar chamando o DNS toda vez, assim a gente coloca um delay e consegue cachear esses dados.
+
+![TTL Route 53](./imagens/ttl-route-53.png)
+
+Alto TTL, 24 horas:
+- Possibilidade do cliente buscar registros desatualizados
+- Menos trafego no Route 53
+
+Baixo TTL, 53 segundos:
+- Vai gerar muito trafego no Route 53
+- Registros ficarão desatualizados em menos tempo
+- Facil para mudar registros no geral
+
+**TTL é obrigatório para todos os registros, exceto o registro de Alias.**
+
+### Routing Policies - Simple
+
+Normalmente direciona o trafego para um único recurso. 
+Um exemplo, o cliente vai querer ir para o endereço foo.example.com e o Amazon Route 53 vai responder direcionando para um registro A 11.22.33.44.
+
+![Single Value](./imagens/simple-policie.png)
+
+<br>
+No caso dessa policie podemos especificar multiplos valores para o mesmo registro. Se multiplos valores forem retornados um randomico será escolhido para o cliente.
+
+![Multiple Values](./imagens/multiple-values.png)
+
+- Quando você ativa o Alias, você só pode especificar um recurso.
+- Não pode ser associado com Health Checks
+
+### Routing Policies - Weighted
+A ideia aqui é que você pode ter uma porcentagem de solicitações que você pode controlar para ir para o seu recurso especifico.
+
+Cada registro daremos um peso relativo:
+
+Trafego (%) = Peso de um registro especifico / soma de todos os pesos de todos os registros
+
+- Registros DNS devem ter o mesmo nome e tipo
+- Podem ser associados com Health Checks
+- Caso de uso: Load Balancing entre regiões, testando uma nova aplicação ou versão
+- Você assinar o peso 0 (zero) a um registro faz para de mandar trafego para o recurso
+- Se todos os registros tem o peso 0 (zero), então todos os registros vão ser retornados igualmente.
+
+### Routing Policies - Latency-based
+
+A ideia é que você queira redirecionar o recurso que terá a menor latência próximo a nós.
+É muito útil quando a latência é sua principal preocupação para seus sites.
+
+Latência será medida com base na rapidez com que os usuários se conectam à região de interesse mais próxima identificada para aquele registro. Por exemplo, usuário da Alemanha e a latência mais baixa for dos EUA.
+
+Pode ser associado com Health Checks.
 ## Conteúdos adicionais de apoio para fixação 
 
 [Mapa mental dos conteúdos da certificação](https://www.mindmeister.com/pt/2688053989/aws-developer).
