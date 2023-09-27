@@ -690,6 +690,171 @@ A ideia é que você queira redirecionar o recurso que terá a menor latência p
 Latência será medida com base na rapidez com que os usuários se conectam à região de interesse mais próxima identificada para aquele registro. Por exemplo, usuário da Alemanha e a latência mais baixa for dos EUA.
 
 Pode ser associado com Health Checks.
+
+### Route 53 - Health Checks
+
+HTTP Health Checks são apenas para serviços publicos.
+
+Temos vários tipos de Health Checks, como por exemplo: 
+- Health checks que monitoram um endpoint (application, server, ou algum outra serviço ou recurso da AWS)
+- Health Checks que monitoram outros health checks (Calculated Health Checks)
+- Health Checks que monitoram alarmes do CloudWatch 
+
+![Health Checks Route 53](./imagens/healthCheck-route53.png)
+
+### Routing Policies - Geolocation
+
+É diferente da Latency-based. Essa é baseada onde o usuários está realmente localizado.
+Você pode direcionar o cliente de acordo de onde vem a localização dele.
+
+### Geoproximity Routing Policy
+
+Permite que você direcione o trafego de seus recursos com base na localização geográfica de seus usuários e recursos.
+
+![Geo Proximidade](./imagens/geoproximidade.png)
+
+### Routing Policies - IP-based Routing
+
+É baseado no endereço de IP do cliente.
+
+### Routing Policies - Multi-Value
+
+Usado quando quiser rotear o tráfego para vários recursos e a rota.
+
+Route 53 retorna multiplos valores/recursos
+
+Pode ser associado com Health Checks (Retorna apenas um valor para healthy resources)
+
+## VPC Fundamentals
+
+### VPC & Subnets Primer
+
+- **VPC**: é uma numve privada que permite você faze deploy de recursos AWS nela.
+- É um recurso Regional, ou seja, se tiver duas regiões você terá duas VPC's diferentes.
+- Dentro das VPC's a gente tem as **Subnets**, que permitem particionar sua rede dentro da sua VPC. (Subnets e VPCs são definidas no nível de AZ)
+- Uma subnet pública é acessivel pela internet.
+- Uma subnet privada é aquela que não é acessivel pela internet
+- Para definir o acesso à internet e entre subnets, usamos Route Tables.
+
+![Como funciona VPC](./imagens/como-funciona-vpc.png)
+
+### Internet Gateway & NAT Gateways
+
+Internet Gareways ajuda a nossa VPC a a se conectar com a internet
+
+Subnets públicas tem a rota para o internet gateway. É isso que torna uma subnet pública ou privada, essa conexão com o internet gateway.
+
+
+Já para subnets privadas usamos NAT Gateways (Gerenciado pela AWS) & NAT Instances (Auto gerenciado).
+
+![Gateways](./imagens/gateways-vpc.png)
+
+### Network ACL & Security Groups
+
+- **NACL** (Network ACL)
+  - É um firewall que controla o tráfego ee e para as subnets.
+  - Pode ter regras de Allow e Deny de trafego
+  - Você atacha os NACL's à Subnet 
+  - As regras só incluem endereços de IP
+
+![NACL](./imagens/nacl.png)
+
+- **Security Groups** (Network ACL)
+
+Security groups é um firewall que controla o trafego de e para uma interface de rede ENI / e EC2 Instance
+
+- Pode ter somente ALLOW rules
+- Rules incluem endereços de IP e outros security groups
+
+![VPC security groups](./imagens/vpc-security-group.png)
+
+### VPC Peering
+
+Esse usamos quando queremos conectar duas vpc's privadas
+
+![VPC Peering](./imagens/vpc-peering.png)
+
+### VPC Endpoints
+
+Permite que você se conecte aos seviços da AWS usando uma rede privada ao inves de uma rede www publica.
+
+- Só é utilizado com VPC
+- Da mais segurança e menor latencia para acessar serviços AWS
+
+![VPC Endpoint](./imagens/vpc-endpoint.png)
+
+### Typical 3 tier solution architecture
+
+![Typical 3 tier solution architecture](./imagens/typical-tier-solution-architecture.png)
+
+## Amazon S3
+
+- Usado para armazenamento e backup
+- Disaster Recovery
+- Arquivamento
+- Storage cloud hibrido
+- Application hosting
+- Media hosting
+- Data lakes & Big Data analytics
+- Software delivery
+- Static website
+
+<br>
+
+- Amazon S3 permite armazenar objetos (arquivos) em "buckets" (diretórios)
+- Buckets devem ter nome globalmente únicos (entre todas regiões e todas as contas)
+- Buckets são definidos no nivel de região
+- S3 parece ser um serviço global, mas buckets são criados no nivel de região
+- Convenção de nomes
+  - Sem letras maiúsculas, sem underline
+  - 3 - 63 caracteres
+  - Sem IP
+  - Deve começar com letra minuscula ou numero
+  - Não deve começar com prefixo xn--
+  - Não deve terminar com sufixo -s3alias
+
+### Amazon S3 Objects
+
+Objects (arquivos) tem uma key. A Key é o caminho completo: s3://my-bucket/**my_file.txt**.
+
+A key é composta pelo prefixo + nome do objeto.
+
+### Amazon S3 Security
+
+**User-Based** - IAM Policies, permissão para um usuário especifico ou grupo de usuários espeficos definidos no IAM
+
+**Resource-Based** - Bucket Policies - permite aplicar regras diretamente ao bucket direto do console e também permite cross account.
+
+**Objects Access Control List (ACL)**
+
+**Bucket Access Control List (ACL)**
+
+### S3 Storage Classes
+
+#### Amazon S3 Standrd - General Purpose
+
+- 99.99% Disponibilidade
+- Usado para dados com frequencia de uso
+- Baixa lantências e alta taxa de transferência
+- Ele pode sustentar duas falhas de instalação simultâneas
+
+#### Infrequent Access
+
+- Para dados que são menos frequentemente acessados, mas querem rapido acesso quando precisa
+- Custo é menor do que o S3 Standard
+
+#### Glacier Storage Classes
+
+- Armazenamento de baixo custo, destinado para arquivamento e backup
+- Você paga pelo armazenamento + custo de recuperação dos arquivos
+
+#### Intelligent-Tiering
+
+- Permite mover objetos entre camadas ema excesso com base em padrões de uso
+
+
+
+
 ## Conteúdos adicionais de apoio para fixação 
 
 [Mapa mental dos conteúdos da certificação](https://www.mindmeister.com/pt/2688053989/aws-developer).
