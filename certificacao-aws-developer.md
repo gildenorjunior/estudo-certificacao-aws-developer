@@ -852,6 +852,58 @@ A key é composta pelo prefixo + nome do objeto.
 
 - Permite mover objetos entre camadas ema excesso com base em padrões de uso
 
+## AWS CLI, SDK, IAM Roles e Policies
+
+### AWS EC2 Instance Metada (IMDS)
+
+Permite que instâncias EC2 saibam uma sobre a outra sem usar IAM Role para isso.
+
+A url é http://196.254.169.254/latest/meta-data
+
+### AWS SDK Overview
+
+Se quisermos executar ações diretamente no código dos nossos aplicativos sem abrir o CLI, usamos o SDK.
+
+Detalhe é que se não especificarmos uma região a região padrão vai se us-east-1.
+
+## Advanced Amazon S3
+![Essas são as transioções de objetos entre classes que podemos fazer](./imagens/moving-storage-s3.png)
+
+Cada uma dessas classes é definida de acordo com o tempo de armazenamento que você pretende deixar, portando se é objeto que você não acessa frequentemente mova para Standard IA. Para objetos que você não precisa de rápido acesso, mova-os para a camada Glacier ou Glacier Deep Archive... 
+
+Essa movimentação pode ser feita manualmente, mas também podemos automatizar usando o Lifecycle Rules.
+
+### Amazon S3 - Lifecycle Rules
+
+**Transition Actions** - É a configuração de objeto para a transição de uma classe de armazenamento para outra. 
+
+Por exemplo, criar uma ação que mova os objetos da classe Standard IA após 60 dias da criação. Ou que mova para a classe Glacier após 6 meses de criação.
+
+**Expiration Actions** - É uma ação que permite configurarmos o tempo de expiração (deleção) de objetos após um certo tempo.
+
+Por exemplo: Podemos criar regras para que logs de acesso sejam deletados após 365 dias. Ou podemos usar para deletar versões antigas de arquivos se o versionamento estiver ativo. Ou também podemos deletar aqueles arquivos que tiveram o upload incompleto.
+
+Essas regras também podem ser criadas para prefixos especificos. Exemplo: s3://mybucket/mp3/*. Da mesma forma que também podemos criar regras especificas para determinadas tags.
+
+### Amazon S3 Analytics - Storage Class Analysis
+
+Nos ajuda a decidir quando transicionar objetos para a classe certa.
+
+Ele faz recomendações para as classes Standar e Standard IA.
+
+
+Dessa forma, o bucket s3 que tem a ele ligado o s3 analytics tem um csv com várias recomendações e informações. Os reports são feitos diariamente.
+![S3 Analytics](./imagens/s3-analytics.png)
+
+
+### Event Notifications
+
+A ideia aqui é que o S3 pode criar notificações de determinadas ações que acontecem dentro dele. Por exemplo, quando um objeto é criado, quando um objeto é deletado, restaurado, replicado...
+
+Então dentre esses eventos podemos filtrar por exemplo pelo tipo jpg.
+
+Um caso de exemplo seria gerar thumbnails de imagens que subimos no s3 e se fosse o caso ativar uma lambda, ou mandar para um sns ou um sqs...
+
 
 
 
