@@ -904,6 +904,60 @@ Então dentre esses eventos podemos filtrar por exemplo pelo tipo jpg.
 
 Um caso de exemplo seria gerar thumbnails de imagens que subimos no s3 e se fosse o caso ativar uma lambda, ou mandar para um sns ou um sqs...
 
+### Amazon S3 Security
+
+#### Amazon S3 - Object Encryption
+
+Nos buckets do S3 podemos criptografar os objetos com os 4 seguintes métodos.
+
+- Server-Side Encryption (SSE)
+  - Server-Side Encryption with Amazon S3-Managed Keys (SSE-S3) Habilitado por padrão. 
+  - Server-Side Encryption with KMS Keys stoared in AWS KMS (SSE-KMS)
+  - Server-Side Encryption with Customer-Provided Keys (SSE-C)
+- Client-Side Encryption
+
+#### Amazon S3 Encyption - SSE-S3
+- Aqui é usada uma chave de criptografia que é manuseada, gerenciada e de propriedade da AWS. Você nunca tem acesso a essa chave.
+- O objeto é criptografado do lado do servidor
+- A criptografia é do tipo AES-256
+- Você deve definir o header "x-amz-server-side-encryption":"AES256"
+- Criptografia vem por padrão para novos buckets e novos objetos
+
+![Criptografia SS-S#](./imagens/criptografia-sse-s3.png)
+
+#### Amazon S3 Encryption - SSE-KMS
+- Aqui você pode manusear e gerenciar a chave de criptografia através do serviço da AWS KMS (Key Management Service) 
+- Usando o KMS você tem o controle das chaves e você também todos os registros de manusei das chaves no CloudTrail
+- Objeto é criptografado do lado do servidor
+- Para usá-lo precisa adicionar no header o seguinte: "x-amz-server-side-encryption":"aws:kms"
+
+
+Uma limitação desse uso é que o agora para upload e download de objetos você vai precisar chamar a API do KMS e essas chamadas tem uma cota de limite de uso, essa cota pode ser aumentada através do console mas é bom ficar atento a esse ponto.
+
+![Criptografia com KMS](./imagens/criptografia-kms.png)
+
+#### Amazon S3 Encryption - SSE-C
+- Aqui as chaves usadas são totalmente gerenciadas pelo cliente, ou seja do lado de fora da AWS.
+- Amazon S3 não guarda as chaves de criptografia, ela utiliza e depois descarta
+- HTTPS deve ser utilizado
+- A chave de criptografia deve ser provida no HTTP header, e em toda requisição HTTP que for feita
+
+![Criptografia SSE-C](./imagens/criptografia-sse-c.png)
+
+#### Amazon S3 Encryption - Client-Side Encryption
+- Aqui o cliente é responsavel por criptografar usando uma biblioteca como Amazon S3 Client-Side Encryption Library
+- O cliente deve criptografar os data ele mesmo antes de enviar para o Amazon S3
+- Da mesma forma que o cliente é responsavel por descriptografar os dados depois de sair do Amazon S3
+- Os clientes gerenciam totalmente as chaves e o ciclo de criptografia
+
+![Criptografia Client-Side](./imagens/criptografia-client-side.png)
+
+### CORS
+Cross-Origin Resource Sharing (CORS). Cors seria uma chamada cruzada, a gente faz uma requisição a um dominio e esse dominio "responde" que partes do conteudo dele tem que buscar em outro dominio como uma imagem por exemplo, então ai entra a permissão de cors de fazer essa chamada cruzada ou não.
+
+#### Amazon S3 - CORS
+- Se o cliente faz uma chamada cruzada no seu bucket S3, nós precisamos habilitar o CORS correto ao header
+- Você pode permitir para uma origin especifica ou para todas * (todas origens)
 
 
 
