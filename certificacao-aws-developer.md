@@ -1,3 +1,293 @@
+## IAM & AWS CLI
+
+IAM = Identity And Access Management, Global Service.
+
+Dentro de uma conta AWS eu posso ter várias pessoas (users).
+Eu posso separar esses users por grupos.
+
+Grupos só podem conter uauários e não outros grupos.
+
+Um usuário pode não pertencer a nenhum grupo.
+
+Um usuário pode pertencer a vários grupos.
+
+![Como funciona grupos e usuários](./imagens/grupos-e-usuarios.png)
+
+**POLICIES**: basicamente é o documento que descreve as permissões que cada uduário ou grupo pode conter. Policie do grupo é passada de herança para os membros do grupo.
+
+Para usuário que não tem grupo posso criar policie inline.
+
+![Estrutura de uma policie](./imagens/estrutura-de-policie.png)
+
+**Version:** Versão da linguagem da politica. <br>
+**ID**: Opcional <br>
+**SID:** Opcional <br>
+**Effect:** Diz se permite ou se nega <br>
+**Principal:** Conta / Usuário / Grupo que a politica será aplicada <br>
+**Action:** Lista de ação que a politica permite <br>
+**Resource:** Lista de recursos ao qual as politicas serão aplicadas
+
+## IAM Security Tools
+
+- IAM credentials report
+- IAM access advisor
+
+Modelo de responsabilidade compartilhada.
+
+**Aqui a AWS cuida** <br>
+INFRA <br>
+Configs e Analise de vulnerabilidades <br>
+Compliance Validaition
+
+**Aqui o usuário cuida** <br>
+Users, grupos, policies...
+
+## EC2 Fundamentals
+AWS Budgets vai gerar alertas para quando ultrapassarmos o limite definido de custos.
+
+### EC2 Elastic Compute Cloud - Infra as a Service
+
+**Capacidades:** <br> 
+Máquinas virtuais (EC2) <br> 
+Armazenar dados em unidades virtuais ou volumes (EBS) <br> Distribuir carga entre máquinas (ELB) <br> 
+Escalar serviços usando um grupo de escalonamento automático (ASG)
+
+### EC2 User Data
+Ao criar uma instância você pode configurar um script para que nessa primeira inicialização ele carregue determinadas configurações. Esse script roda com um usuário root.
+
+### Instance Types
+
+M5.2xlarge
+
+M = Classe da instância <br>
+5 = Geração (AWS melhora conforme o tempo) <br>
+2xlarge = Tamanho da instância
+
+**Uso geral:** Boa para tarefas intensivas que requerem alta perfomance do processador.
+
+**Memory Optimized:** Boa para grandes cargas de dados na memória.
+
+**Storage Optimized:** Boa para grandes cargas de trabalho que exigem leitura e gravação sequencialde alto conjunto de dados.
+
+### Security Groups
+Controla como o trafego é permitido dentro e fora das instâncias. Security group contém apenas permissões.
+
+Ele pode referenciar por IP ou por outro Security group. 
+
+Security group age como um firewall.
+
+Regulam:
+- Acesso a portas
+- Autorizam ranges de IP's
+- Controlam o tráfego de entrada e saída da instância
+- Podem ser vinculados a multiplas instâncias
+- São uma confirmação por região. Se mudar de região precisa muda-lo.
+- "Vive" fora da instância
+- É bom criar um grupo separado para SSH
+- Por padrão todo tráfego de entrada é bloqueado
+- Todo tráfego de saída é autorizado por padrão
+
+![Diagrama do secutiry group](./imagens/security-group-diagrama.png)
+
+#### Portas para saber
+**22** = SSH (Secutiry Shell) Permite que você faça login em uma instância EC2 no linux <br>
+**21** = FTP (File Transfer Protocol) Usada para fazer upload de arquivos em um compartilhamento de arquivos <br>
+**22** = SFTP (Secure file transfer portocol) Fazer upload de arquivos no modo seguro <br>
+**80** = HTTP Acesso de sites não seguros <br>
+**443** = HTTPS Acesso de sites seguros <br>
+**3389** = RDP (Remote desktop protocol) Fazer login em uma instância Windows
+
+*Para configurar SSH na instância eu posso usar EC2 Instance Connect*
+
+### EC2 Instances Purchasing Options
+
+**On-Demand**: Workload curto, preço previsivel, pago por segundo usado <br>
+**Reserved**: (1 a 3 anos) Workloads longos. Convertible reserved instances: longos workloads com flexibilidade de instâncias <br>
+**Saving Plans:** (1 a 3 anos) Comprometimento com a quantidade de uso, longos workloads. <br>
+**Spot Instance:** Workloads curtos, são muito baratas, mas podemos perder a instância a qualquer momentos (menos confiavel) <br>
+**Dedicated Hosts:** Permite que reserve um servidor fisico inteiro e controle o posicionamento das instâncias <br>
+**Dedicated Instances:** Nenhum outro cliente vai usar o seu hardware <br>
+**Capacity Reservations:** Permite reservar uma capacidade em um AZ especifico por qualquer duração
+
+## EC2 On Demand
+Pago pelo o que usar.
+
+Linux ou Windows: Pago por segundo, após o primeiro minuto.
+
+Todos os outros sistemas operacionais pagos por hora.
+
+Tem um custo mais alto mas não tem pagamentos antecipados e sem compromisso de longo prazo.
+
+Recomendado para um curto workload e sem interrupção, onde você não pode prever como o sistema vai se comportar.
+
+## EC2 Reserved Instances
+Um desconto de 72% compardo com On-Demand.
+
+Você reserva atributos especificos (tipo da instância, região, OS)...
+
+Reserva o periodo: 1 ano (+descontos) ou 3 anos (++descontos).
+
+Opções de pagamento: Sem adiantamento (+), adiantamento parcial (++), total adiantamento (+++).
+
+Instâncias reservadas por escopo: Região ou zona.
+
+Recomendado para aplicações com uso de estado (por exemplo banco de dados).
+
+Você pode comprar ou vender instâncias reservadas no marketplace se não precisar mais delas.
+
+## Instâncias reservadas conversiveis
+Pode mudar o tipo da instância, a familia da instância, OS...
+
+Pode ganhar até 60% de desconto.
+
+## EC2 Saving Plans
+
+Desconto com base no termo de longo prazo.
+
+Você diz que quer pagar por exemplo "10"reais por hora por 1 ou por 3 anos.
+
+Qualquer custo a mais será cobrado no modo On-Demand.
+
+Você fica preso ao tipo especifico da familia e região (ex: M5 em US-East-1)
+
+Flexivel entre: Tamanho das instâncias (M5 large, M5 2x.large). OS (Linux, Windows). Locação (Host, dedicated, default)
+
+## EC2 Spot Instances
+Desconto de até 90% comparado com On-Demand.
+
+São as instâncias mais economicas da AWS.
+
+Você pode perder a qualquer momento se o seu preço máximo for menor que o preço atual da instância.
+
+Boa para workloads resistentes a falha.
+
+Batch, Analise de dados, Processamento de imagem, Qualquer tipo de carga de trabalho distribuida, Workloads que tenham horário de inicios e fim flexiveis.
+
+Não recomendado para trabalhos criticos e banco de dados.
+
+## EC2 Dedicated Hosts
+Um servidor fisico com uma instância EC2 totalmente dedicada para seu uso.
+
+Opções de pagamento: <br>
+On-Demand: Paga por segundo ativo <br>
+Reserved: 1 ou 3 anos (sem pagamento adiantado, pagamento parcial, todo pagamento).
+
+A opção mais cara da AWS porque você reserva o servidor fisico.
+
+Um exemplo de uso é quando você tem um software com uma herança de uso.
+
+Ou se você tem uma empresa com fortes regulações.
+
+## EC2 Dedicated instances
+Roda em um Hardware que é dedicado para você.
+
+Você pode compartilhar o Hardware com outras instâncias na mesma conta
+
+Não tem controle sobre o posicionamento das instâncias.
+
+Instâncias dedicadas você pode ter sua própria instância em seu próprio Hardware enquanto Host Dedicado você obtém acesso ao proprio servidor fisico.
+
+## EC2 Capacity Reservations
+Pode reservar instâncias On-Demand com capacidade em um AZ especifico em um AZ especifico por qualquer duração.
+
+Você sempre tem acesso a capacidade do EC2 quando precisar.
+
+Não tem compromisso de tempo, pode reservar ou cancelar a qualquer tempo, sem desconto no faturamento.
+
+Se quiser descontos precisa combinar instâncias reservadas e Saving Plans para obter descontos.
+
+Você cobrado sobre as taxas sob demanda, independente de executar ou não as instâncias.
+
+Recomendado para termo de curto prazo, workload sem interrupção que precisa estar em um AZ especifico.
+
+## EBS
+Elastic Block Store: É uma unidade de rede que você pode anexar as suas instâncias enquanto são executadas.
+
+Permite persistir os dados da instância mesmo que ela for terminada.
+
+Multiplas instâncias para multiplos EBS.
+
+É vinculado a uma zona de disponibilidade especifica.
+
+Analogia: Da pra pensar como um USB porém não de forma fisica.
+
+Free-Tier: 30GB grátis do tipo General Purpose (SSD) ou magnetic por mês.
+
+Como é conectado a rede pode ser que tenha latência.
+
+Pode ser atachado e desatachado rapidamente
+
+São bloqueados por Zona de disponibilidade 
+
+A capacidade (GBs) precisa ser provisionada antes.
+
+Será cobrado por essa capacidade provisionada.
+
+Pode aumentar a capacidade ao longo do tempo.
+
+![Como funciona o EBS](./imagens/como-funciona-ebs.png)
+
+### EBS - Delete on Termination Attribute
+
+Controla o comportamento do EBS quando a instância é terminada.
+
+Por padrão o EBS ROOT volume é deletado, essa opção já vem ativa.
+
+Volume atachados por padrão não são deletados.
+
+### EBS Snapshot
+
+É um backup do seu EBS
+
+Não é necessário desatachar o volume do EC2, mas é recomendado.
+
+Eu posso ter um snapshot de uma região e posso utiliza-lo em outra.
+
+![Como funciona snapshot](./imagens/como-funciona-snapshot.png)
+
+Basicamente é assim que se transfere um volume EBS de uma zona para outra.
+
+### EBS Snapshot Features
+EBS Snapshot archive: Essa é uma camada que é 75% mais barata.
+
+Leva de 24 a 72 horas para restaurar o arquivo, não é imediato.
+
+**Recycle Bin For EBS SnapShots**
+É a configuração de regras que leva os arquivos deletados para uma lixeira, evitando acidentes caso você apague sem querer ele vai para esse recycle bin.
+
+A retenção pode ser entre 1 dia e 1 ano.
+
+**Fast snapshot restore (FSR)**
+Força a completa inicialização do snapshot pra que não tenha nenhuma latância no primeiro uso.
+
+Custo bem caro.
+
+## AMI Amazon Machine Image
+Basicamente é a personalização de uma instância EC2.
+
+Você adiciona seu próprio software, configuração, sistema operacional, software de monitoração...
+
+O boot fica mais rápido porque todo seu software já está pré-empacotado.
+
+AMI é construido para uma região especifica (mas pode ser copiado entre as regiões).
+
+Posso subir uma instância com: AMI publicas que a AWS provê.
+
+Minha própria AMI
+
+Uma AMI comprada no marketplace.
+
+## EC2 Instance Store
+É como se fosse um "USB" fisico mesmo que você aloca lá no servidor.
+
+Tem uma performance maior
+
+É efemeral, se a instância for terminada você perde esse store.
+
+É como se fosse uma memória RAM.
+
+Backup e replicação totalmente nossa responsabilidade.
+
 ## EBS Volume Types
 
 #### EBS Volumes tem 6 tipos
@@ -959,7 +1249,15 @@ Cross-Origin Resource Sharing (CORS). Cors seria uma chamada cruzada, a gente fa
 - Se o cliente faz uma chamada cruzada no seu bucket S3, nós precisamos habilitar o CORS correto ao header
 - Você pode permitir para uma origin especifica ou para todas * (todas origens)
 
+## AWS CloudFront
 
+É uma rede de entrega de conteúdo ou CDN. Ele melhora a performance de leitura ao armazenar em cache o conteúdo de seu website em diferentes edge locations.
+
+Melhora também a experiência dos usuários uma vez que a latência será menor.
+
+CloudFront tem 216 pontos de presença global (edge locations).
+
+Um outro ponto também com CloudFront é que sua aplicação estará seguro contra ataques DDOS, uma vez que o ataque visa focar em um ponto e fazer multiplas requisições por exemplo, com cloudfront sua aplicação é mundial.
 
 ## Conteúdos adicionais de apoio para fixação 
 
