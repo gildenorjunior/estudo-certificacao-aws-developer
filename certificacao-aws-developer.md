@@ -450,7 +450,7 @@ Temos três instâncias EC2, um balanceador de carga e três usuários fazendo r
 - Ele distribui a carga entre as multiplas instancias
 - É exposto apenas um ponto de acesso (DNS) a aplicação
 - Ajuda a lidar com falhas e quedas de instâncias, uma vez que ele só vai mandar carga para instâncias que estiverem de pé
-- Ele vai regularmente health checks nas instancias
+- Ele vai regularmente fazer health checks nas instancias
 - Provê terminação SSL (HTTPS) para os websites
 - Alta disponibilidade entre zonas
 - Separa trafego publico de trafego privado
@@ -568,7 +568,7 @@ Como funciona o Network Load Balancer:
 
 ## Cross-Zone Load Balancing
 
-Balanceamento cruzado, significa que entre diferentes zonas de disponibilidade o balanceador vai distribuir a carga igualmente entre cada instância nas diferentes AZs. Isso pode ser um comportamente que você queira ou não.
+Balanceamento cruzado, significa que entre diferentes zonas de disponibilidade o balanceador vai distribuir a carga igualmente entre cada instância nas diferentes AZs. Isso pode ser um comportamento que você queira ou não.
 
 ![Como funciona o Cross-Zone ALB](./imagens/cross-zone-alb.png)
 
@@ -590,7 +590,7 @@ As cargas são distribuidas apenas entre a zona que a carga chega.
 
 ## Elastic Load Balancer SSL certificates
 
-Um certificado SSL permite o tráfego entre seus clientes e seu balanceador de carga seja criptografado durante trânsito.
+Um certificado SSL permite que o tráfego entre seus clientes e seu balanceador de carga seja criptografado durante trânsito.
 Significa que os dados enquanto estão na rede sejam criptografados e só sejam descriptografados quando estiverem com seu remetente ou receptor.
 
 - **SSL** refere-se a Secure Sockets Layer, usado para criptografar conexões.
@@ -639,6 +639,16 @@ Basicamente é o esquema de redimensionar horizontalmente e automaticamente a qu
 - Podemos assegurar uma quantidade minima e máxima de instâncias que ficarão rodando
 - Ele consegue re-criar instâncias que foram terminadas, por exemplo se uma intâncias estava unhealthy
 - ASG é grátis, só pagará pelos recursos usados abaixo dele, como por exemplo, instâncias EC2.
+
+**Para que serve:** É usado para dimensionar automaticamente recursos com base na demanda, evitando sub ou
+super provisionamento. <br><br>
+**Caso de uso:** Escalonamento automático de instâncias EC2, dimensionamento automático de grupos de
+instâncias, otimização de custos de recursos. <br><br>
+
+**Quando devo usar o AWS Auto Scaling:** Você deve usar o AWS Auto Scaling para aplicativos que usam um ou mais recursos escaláveis e estão sujeitos a cargas variáveis. Um bom exemplo seria um aplicativo web de comércio eletrônico que recebe tráfego variável durante o dia. O aplicativo segue uma arquitetura padrão de três camadas: o Elastic Load Balancing distribui o tráfego recebido, o Amazon EC2 é a camada de computação e o DynamoDB é a camada de dados. Neste caso, o AWS Auto Scaling escalará um ou mais grupos do EC2 Auto Scaling e tabelas do DynamoDB usados pelo aplicativo para responder à curva de demanda.
+
+**Link do serviço:** https://aws.amazon.com/pt/autoscaling/ <br>
+**Link do FAQ do serviço:** https://aws.amazon.com/pt/autoscaling/faqs/
 
 **Como funciona o ASG:**
 ![Como funciona o ASG](./imagens/auto-scaling-group.png)
@@ -1258,6 +1268,17 @@ Melhora também a experiência dos usuários uma vez que a latência será menor
 CloudFront tem 216 pontos de presença global (edge locations).
 
 Um outro ponto também com CloudFront é que sua aplicação estará seguro contra ataques DDOS, uma vez que o ataque visa focar em um ponto e fazer multiplas requisições por exemplo, com cloudfront sua aplicação é mundial.
+
+### CloudFront Caching
+- O cache fica nas pontas, ou seja nos Edge Locations
+- O CloudFrton identifica cada objeto no cache usando o **Cache Key**
+
+![Como funciona o cache no cloudfront](./imagens/cache-cloudfront.png)
+
+#### O que é o cloudfront cache key?
+É basicamente um identificador único para cada objeto no cache. Por padrão ele consiste em **host + resource portion of the URL**
+
+![Como funciona o padrão de cache key](./imagens/cache-key.png)
 
 ## Conteúdos adicionais de apoio para fixação 
 
