@@ -1280,6 +1280,20 @@ Um outro ponto também com CloudFront é que sua aplicação estará seguro cont
 
 ![Como funciona o padrão de cache key](./imagens/cache-key.png)
 
+### CloudFront - Cache Invalidations
+
+O cloudfront trabalha com as atualizações do back end, mas o cloudfront não sabe das suas atualizações até que expire o TTL e ele consiga recarregar as informações. 
+
+Então se você precisar remover um arquivo do cache do Edge Location antes dele expirar, pode executar essa invalidation.
+
+Dessa forma da próxima vez que o usuário for buscar aquele arquivo não vai buscar mais do cache, sendo forçado a buscar da própria origin, por que invalidamos.
+
+Podemos invalidar todos os arquivos (\*) ou um caminho especial (/images/*)
+
+![Como funciona o invalidation cloudfront](./imagens/invalidation-cloudfront.png)
+
+
+
 ## Conteúdos adicionais de apoio para fixação 
 
 [Mapa mental dos conteúdos da certificação](https://www.mindmeister.com/pt/2688053989/aws-developer).
