@@ -1292,7 +1292,92 @@ Podemos invalidar todos os arquivos (\*) ou um caminho especial (/images/*)
 
 ![Como funciona o invalidation cloudfront](./imagens/invalidation-cloudfront.png)
 
+## ECS, ECR & Fargate - Docker in AWS
+### Docker Introdução
+O que é Docker: É um software de código aberto usado para implantar aplicativos dentro de containers virtuais. A conteinerização permite que vários aplicativos funcionem em diferentes ambientes complexo. Por exemplo: o Docker permite executar o WordPress em sistemas Windows, Linux e macOS.
 
+Docker é bastante usado em casos onde usamos microsserviços, lift-and-shift...
+
+**Onde as imagens são armazenadas?**
+
+As imagens docker são armazenadas em Docker Repositories. Docker Hub ou Amazon ECR.
+
+**Como começar com Docker:**
+![Como começamos com o Docker](./imagens/como-comecar-com-docker.png)
+
+#### Docker Containers Gerenciados na AWS
+- Amazon Elastic Container Service (Amazon ECS)
+- Amazon Elastic Kubernetes Service (Amazon EKS)
+- AWS Fargate
+- Amazon ECR
+
+
+**O que é o Docker?** É um software que oferece ambientes virtualizados que empacotam todo um sistema operacional ou sua aplicação para dentro de um container. Containers são isolados uns dos outros e dentro deles carregam tudo que é preciso para esse software ou aplicação, como libs e dependencias...
+
+## Amazon ECS 
+ECS = Elastic Container Service
+
+Lançar Docker containers na AWS = Lançar ECS Tasks em ECS clusters
+É um sistema de orquestração de containers. Significa que ele não faz "nada" além de controlar a sua infra de containers rodando dentro de instancias do EC2 ou dentro do Fargate
+
+Para publicar os nossos containers lá dentro podemos trabalhar tanto com o ECR AWS ou Docker HUB que são os repositórios de containers.
+
+### EC2 Launch Type
+![Como funciona o Amazon ECS](./imagens/amazon-ecs.png)
+
+### Fargate Launch Type
+Provisiona containers Docker na AWS, mas não precisa provisionar ou gerencias infra (não tem instâncias EC2 para gerenciar)
+
+É serverless! Você só precisa criar as tasks. a AWS roda ECS Taksks para você baseadas no CPU / RAM que você precisa.
+
+![Fargate](./imagens/fargate.png)
+
+### ECS Service Auto Scaling
+Podemos automaticamente aumentar ou diminuir o número desejado de tasks ECS.
+
+- Amazon ECS Auto Scaling usa o AWS Application Auto Scaling
+  - ECS Service utilização de CPU
+  - ECS Service utilização de memória - scale de RAM
+  - ALB Resquest Count per Target
+
+### ECS Rolling Updates
+Como atualizar serviços ECS. Quando atualizamos da v1 para v2, nís podemos controlar quantas tasks podem ser iniciadas e terminadas, e em qual ordem.
+
+### Amazon ECS - Taks Definition
+
+Task definitio são metadados em JSON que falam para o ECS como rodar um Docker container.
+
+Contém informações importantes como
+- Nome da imagem
+- Porta de ligação para o Container e o Host
+- Memória e CPU necessária
+- Variaveis de ambiente
+- Informações de rede
+- IAM Role
+- Configurações de loggig (ex CloudWatch)
+
+Você pode definir até 10 containers em uma task definition
+
+## Amazon ECR 
+ECR = Elastic Container Registry 
+
+É usado para armazenar e gerenciar imagens Docker na AWS.
+
+Podemos deixar no modo Privado ou no modo Público.
+
+É totalmente integrado com o ECS e por trás dos panos as imagens são armazenadas no S3.
+
+
+## Amazon EKS
+Amazon EKS = Amazon Elastic Kubernets Service.
+
+É uma forma de lançar e gerenciar clusters Kubernetes na AWS.
+
+**O que é Kubernetes?** É um sistema open-source para implantações automaticas, escalonamento e gerenciamento de aplicações de containers, geralmente docker.
+
+EKS tem a mesma ideia do ECS, o objetivo é similar mas a API é diferente.
+
+EKS suporta EC2 e Fargate também
 
 ## Conteúdos adicionais de apoio para fixação 
 
