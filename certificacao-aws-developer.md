@@ -1379,6 +1379,131 @@ EKS tem a mesma ideia do ECS, o objetivo é similar mas a API é diferente.
 
 EKS suporta EC2 e Fargate também
 
+## Amazon Elastic BeanStalk
+É uma interface gráfica que centraliza todas as ferramentas para o desenvolvedor conseguir deployar seu código sem se preocupar e perder tempo com configurações e provisionamento de infra.
+
+O desenvolvedor cria o código e sobe em formato de zip, por exemplo para o elastic beanstalk onde lá ele vai ter todo o ambiente configurado em poucos passos.
+
+O elastic beanstalk tem as seguintes opção de environment tier: **web server environment e worker environment**. Com o web server a gente cria um ambiente de site web por exemplo, agora com o worker environment a gente vai conseguir trabalhar com filas SQS.
+
+### Estratégias de deploy
+#### Rolling
+
+Nessa estratégia a gente vai derubando e subindo novas versões aos poucos. Temos quatro instâncias por exemplo, derrubamos duas e posteriormente subimos as versões novas substituindo essas duas que foram desativadas.
+
+- A aplicação vai rodar abaixo da capacidade
+- Podemos settar a quantidade de máquinas que vamos derrubar
+- A instância vai rodar as duas versões simultaneamente
+- Não tem custo adicional
+- O deploy demora
+  
+![Rolling](./imagens/rolling.png)
+
+#### Rolling with additional batches
+
+Essa estratégia de deploy é bem parecida com o rolling visto acima, a diferença aqui é que temos maquinas adicionais para esse deploy que nelas vai conter as novas versões do app.
+
+- Aplicação está rodando na capacidade
+- Podemos settar a quantidade de máquinas que vamos derrubar
+- A aplicação está rodando as duas versões do app simultaneamente
+- Um pequeno aumento no custo, por causa das máquinas adicionais
+- As máquinas que foram adicionais são removidas no fim do deploy
+- O deploy demora
+- Bom para um ambiente de produção
+
+![rolling w/ additional batches](./imagens/rolling-with-additional-batches.png)
+
+#### Immutable
+Nessa estatégia temos dois ASG, um atual e um temporário. Depois de um tempo fazemos um merge desses dois ASG e deixamos de usar para o ASG temporário.
+
+- Aqui não temos downtime
+- Tem um alto custo, dobramos a capacidade
+- É o deploy mais demorado
+- Temos um rollback rápido pois é só finalizar o novo ASG
+- Bom para o ambiente de produção
+
+![Immutable](./imagens/immutable.png)
+
+#### Blue Green
+
+Nessa estratégia, fazemos o controle de trafego entra a nova versão e a antiga.
+
+- Não é uma feature diretamente do Elastic Beanstalk
+- Não tem downtime e o deploy é fácil
+- Criamos um novo ambiente e deployamos a nova versão nele
+- Podemos usar o Route 53 aqui para fazer esse controle de fluxo
+
+![Blue Green](./imagens/blue-green.png)
+
+#### Traffic Splitting
+- Uma nova versão é deployada para um ASG temporário ASG com a mesma capacidade
+- Uma pequena porcentagem do trafego é enviado para o ASG temporário por um tempo configuravel
+- A saude do deploy é monitorada
+- Se tiver algum problema no deploy da pra fazer um rollback rápido
+- Não tem downtime
+
+![Traffic Splitting](./imagens/traffic-splitting.png)
+
+## AWS CloudFormation
+
+Cloudformation é a infra como código. É a forma declarativa de subirmos nossa infra para qualquer recurso (a maioria dos recursos da AWS são suportados).
+
+Um exemplo é a gente criar um template dizendo:
+- Eu quero um security group
+- Eu quero duas intancias EC2 usando esse security group
+- Eu quero dois Elastic IPs para essas maquinas
+- Eu quero um bucket S3
+- Eu quero um load balancer (ELB) na frente dessas maquinas
+
+Então o cloudformation cria tudo o que foi especificado na determinada ordem que foi colocada.
+
+**Beneficios do CloudFormation**
+- Não precisará criar recursos manualmente
+- O código será controlado através de versionamento de código usando o git
+- Mudanças na infra poderão ter code review
+- Cada recurso dentro de uma stack tera um identificador que ajudará a a ver quanto será o custo 
+- Podemos estimar os custos dos recursos usando o cloudformation template
+
+#### O que são recursos no CloudFormation
+
+Recursos são o core do CloudFormation template (são obrigatórios)
+
+
+Recursos representam diferentes componenentes AWS ue serão criados e configurados.
+
+Eles podem ser declarados e podem ser referenciados uns aos outros.
+
+Recursos são identificados pela forma:
+**AWS::aws-product-name::data-type-name**
+
+Na doc da aws podemos encontrar todos os identificadores de recursos: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
+
+#### O que são parametros no CloudFormation
+
+Parametros são formas de prover innputs para o seu template do CloudFormation AWS.
+
+#### O que são mappings no CloudFormation
+São variaveis fixas dentro do seu template de CloudFormation
+
+É bem útil se precisarmos diferenciar entre diferentes ambientes (dev, hom, prod), regiões, AMI types...
+
+#### O que são outputs no CloudFormation
+
+Outputs são valores opcionais que nós podemos importar dentro de outras stacks (se exportar eles primeiro)
+
+Seria uma forma de vincular templates do cloudformation entre suas stacks.
+
+#### Conditions CloudFormation
+
+Conditions são usadas para controlar a criação de recursos ou outputs baseados em uma condição.
+
+
+#### Rollback
+
+Se uma pilha falhar por padrão acontece o rollback. Temos a opção de desativar esse rollback também.
+
+
+
 ## Conteúdos adicionais de apoio para fixação 
 
 [Mapa mental dos conteúdos da certificação](https://www.mindmeister.com/pt/2688053989/aws-developer).
