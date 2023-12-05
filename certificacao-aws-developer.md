@@ -1502,6 +1502,59 @@ Conditions são usadas para controlar a criação de recursos ou outputs baseado
 
 Se uma pilha falhar por padrão acontece o rollback. Temos a opção de desativar esse rollback também.
 
+## Amazon SQS
+
+É um serviço de enfileiramento de mensagens. Tem os produtores que é quem vai enviar as mensagens para o SQS, podemos ter mais que um produtor enviando mensagens. E do outro lado para receber essas mensagens temos os consumidores que aguardam pelas mensagens.
+
+![Como funciona o SQS](./imagens/sqs.png)
+
+### Amazon SQS - Standard Queue
+
+- É o serviço mais antigo da AWS
+- Totalmente gerenciado, usado para o desacoplamento de aplicações
+- Não há limite de taxa de transferência e nem limite no número de mensagens na fila.
+- As mensagens ficam na fila por periodo determinado, máximo 14 dias, após isso são deletadas.
+- Latência é baixa
+- As mensagens enviadas devem ser pequenas, tem uma limitação de 256kb por mensagem.
+- Podemos ter mensagens duplicadas
+
+## Amazon Kinesis
+
+Kinesis facilita a coelta, o processamento e a análise dos dados de streaming em tempo real.
+
+Os dados em tempo real podem ser qualuqer coisa como logs de aplicações, métricas, website, fluxos de cliques...
+
+## Kinesis Data Streams
+
+É uma forma de transmitir big data em seus sistemas.
+
+![Como funciona o Kinesis Data Streams](./imagens/kinesis-data-streams.png)
+
+- Você tem a retenção de dados entre 1 dia e 365 dias
+- Pode reprocessar dados
+- Uma vez que os dados são inseridos no Kinesis, eles não podem ser deletados (imutabilidade)
+- Os dados que compartilham a mesma partição vão para o mesmo shard (order)
+
+## CloudWatch Metrics
+
+O cloudwatch provê métricas para todos os serviços da AWS. Métrica é uma variavel para monitorar (CPUUtilization, NetworkIn...)
+
+## CloudWatch Logs
+
+Usado para armazenar logs de aplicações.
+
+- Log groups: Geralmente representam uma aplicação.
+- Dentro de um log group temos o log stream que irá conter arquivos de log, containers
+- Podemos definir uma data de expiração (nunca expira, 1 dia até 10 anos...)
+- Podemos enviar esses logs para:
+  - Amazon S3 (exports)
+  - Kinesis Data Stream
+  - Kinesis Data Firehose
+  - AWS Lambda
+  - OpenSearch
+
+Logs são criptografados por padrão.
+
 
 
 ## Conteúdos adicionais de apoio para fixação 
